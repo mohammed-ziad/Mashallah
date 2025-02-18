@@ -5,13 +5,17 @@ from dotenv import load_dotenv
 import numpy as np
 import os
 
-
 # Load environment variables
 load_dotenv()
 
 # Initialize OpenAI client
+api_key = os.environ.get("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")
+if not api_key:
+    st.error("OpenAI API key not found! Please set the OPENAI_API_KEY environment variable.")
+    st.stop()
+
 client = OpenAI(
-    api_key=os.environ.get("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")
+    api_key=api_key
 )
 
 # Initialize LanceDB connection
