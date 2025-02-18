@@ -32,7 +32,21 @@ client = OpenAI(
     api_key=api_key
 )
 
+import lancedb
 
+# --------------------------------------------------------------
+# Connect to the database
+# --------------------------------------------------------------
+
+uri = "data/lancedb"
+db = lancedb.connect(uri)
+
+
+# --------------------------------------------------------------
+# Load the table
+# --------------------------------------------------------------
+
+table = db.open_table("docling")
 # Initialize LanceDB connection
 @st.cache_resource
 def init_db():
