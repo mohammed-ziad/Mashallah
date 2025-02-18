@@ -21,7 +21,7 @@ import lancedb
 # --------------------------------------------------------------
 
 # Initialize database connection
-uri = "data/lancedb"
+uri = "Data/lancedb"
 try:
     db = lancedb.connect(uri)
     table = db.open_table("docling")
@@ -34,7 +34,7 @@ try:
 except Exception as e:
     st.error(f"Error connecting to database: {str(e)}")
     st.error("Please make sure:")
-    st.error("1. The 'data/lancedb' directory exists")
+    st.error("1. The 'Data/lancedb' directory exists")
     st.error("2. The 'docling' table was properly created")
     st.error("3. You have proper permissions to access the directory")
     st.stop()
