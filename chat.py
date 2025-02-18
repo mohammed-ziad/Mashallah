@@ -29,8 +29,22 @@ def init_db():
     Returns:
         LanceDB table object
     """
-    db = lancedb.connect("Data/lancedb")
-    return db.open_table("docling")
+    try:
+        db = lancedb.connect("Data/lancedb")
+        
+        # Check if table exists, if not create it
+        try:
+            table = db.open_table("docling")
+        except Exception as e:
+            st.error("Table 'docling' not found. Please make sure the table exists.")
+            st.error(f"Error details: {str(e)}")
+            st.stop()
+            
+        return table
+    except Exception as e:
+        st.error("Failed to connect to LanceDB database.")
+        st.error(f"Error details: {str(e)}")
+        st.stop()
 
 
 def get_context(query: str, table, num_results: int = 3) -> str:
