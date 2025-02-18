@@ -3,23 +3,13 @@ import lancedb
 from openai import OpenAI
 from dotenv import load_dotenv
 import numpy as np
-import os
 
 # Load environment variables
 load_dotenv()
 
-# For testing only - remove in production
-os.environ["OPENAI_API_KEY"] = "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"
-
 # Initialize OpenAI client
-api_key = os.environ.get("OPENAI_API_KEY")
-if not api_key:
-    st.error("OpenAI API key not found! Please set the OPENAI_API_KEY environment variable.")
-    st.stop()
+client = OpenAI()
 
-client = OpenAI(
-    api_key=api_key
-)
 
 # Initialize LanceDB connection
 @st.cache_resource
@@ -29,35 +19,8 @@ def init_db():
     Returns:
         LanceDB table object
     """
-    try:
-        db = lancedb.connect("Data/lancedb")
-        
-        # Check if table exists, if not create it
-        try:
-            table = db.open_table("docling")
-        except Exception:
-            st.info("Creating new 'docling' table...")
-            # Create table with schema
-            schema = [
-                ("text", "string"),
-                ("vector", "float32[384]"),  # Adjust vector size based on your embeddings
-                ("metadata", "json")
-            ]
-            
-            # Create empty table with schema
-            table = db.create_table(
-                "docling",
-                schema=schema,
-                mode="create"
-            )
-            
-            st.success("Table 'docling' created successfully!")
-            
-        return table
-    except Exception as e:
-        st.error("Failed to connect to LanceDB database.")
-        st.error(f"Error details: {str(e)}")
-        st.stop()
+    db = lancedb.connect("BGC/lancedb")
+    return db.open_table("docling")
 
 
 def get_context(query: str, table, num_results: int = 3) -> str:
