@@ -35,10 +35,23 @@ def init_db():
         # Check if table exists, if not create it
         try:
             table = db.open_table("docling")
-        except Exception as e:
-            st.error("Table 'docling' not found. Please make sure the table exists.")
-            st.error(f"Error details: {str(e)}")
-            st.stop()
+        except Exception:
+            st.info("Creating new 'docling' table...")
+            # Create table with schema
+            schema = [
+                ("text", "string"),
+                ("vector", "float32[384]"),  # Adjust vector size based on your embeddings
+                ("metadata", "json")
+            ]
+            
+            # Create empty table with schema
+            table = db.create_table(
+                "docling",
+                schema=schema,
+                mode="create"
+            )
+            
+            st.success("Table 'docling' created successfully!")
             
         return table
     except Exception as e:
