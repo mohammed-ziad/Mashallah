@@ -38,7 +38,7 @@ import lancedb
 # Connect to the database
 # --------------------------------------------------------------
 
-uri = "data/lancedb"
+uri = "Data/lancedb"
 db = lancedb.connect(uri)
 
 
