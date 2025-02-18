@@ -12,25 +12,7 @@ from lancedb.embeddings import get_registry
 from lancedb.pydantic import LanceModel, Vector
 from openai import OpenAI
 from tokenizer import OpenAITokenizerWrapper
-
-# Load environment variables
 import os
-
-# Load environment variables
-load_dotenv()
-
-# For testing only - remove in production
-os.environ["OPENAI_API_KEY"] = "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"
-
-# Initialize OpenAI client
-api_key = os.environ.get("OPENAI_API_KEY")
-if not api_key:
-    st.error("OpenAI API key not found! Please set the OPENAI_API_KEY environment variable.")
-    st.stop()
-
-client = OpenAI(
-    api_key=api_key
-)
 
 import lancedb
 
@@ -58,6 +40,21 @@ def init_db():
     db = lancedb.connect("Data/lancedb")
     return db.open_table("docling")
 
+# Load environment variables
+load_dotenv()
+
+# For testing only - remove in production
+os.environ["OPENAI_API_KEY"] = "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"
+
+# Initialize OpenAI client
+api_key = os.environ.get("OPENAI_API_KEY")
+if not api_key:
+    st.error("OpenAI API key not found! Please set the OPENAI_API_KEY environment variable.")
+    st.stop()
+
+client = OpenAI(
+    api_key=api_key
+)
 
 def get_context(query: str, table, num_results: int = 3) -> str:
     """Search the database for relevant context.
