@@ -17,26 +17,31 @@ import os
 import lancedb
 
 # --------------------------------------------------------------
-# Connect to the database
+# Connect to the database and load existing table
 # --------------------------------------------------------------
 
+# Initialize database connection
 uri = "data/lancedb"
-db = lancedb.connect(uri)
+try:
+    db = lancedb.connect(uri)
+    table = db.open_table("docling")
+    st.success("Successfully connected to existing database and loaded table 'docling'")
+    
+    # Display table statistics
+    row_count = table.count_rows()
+    st.info(f"Table contains {row_count} documents")
+    
+except Exception as e:
+    st.error(f"Error connecting to database: {str(e)}")
+    st.error("Please make sure:")
+    st.error("1. The 'data/lancedb' directory exists")
+    st.error("2. The 'docling' table was properly created")
+    st.error("3. You have proper permissions to access the directory")
+    st.stop()
 
-
-# --------------------------------------------------------------
-# Load the table
-# --------------------------------------------------------------
-
-table = db.open_table("docling")
-
-
-# --------------------------------------------------------------
-# Search the table
-# --------------------------------------------------------------
-
-result = table.search(query="pdf").limit(5)
-result.to_pandas()
+# Remove the test search since we don't need it
+# result = table.search(query="pdf").limit(5)
+# result.to_pandas()
 
 # Load environment variables
 load_dotenv()
@@ -65,29 +70,34 @@ def get_context(query: str, table, num_results: int = 3) -> str:
     Returns:
         str: Concatenated context from relevant chunks with source information
     """
-    results = table.search(query).limit(num_results).to_pandas()
-    contexts = []
+    try:
+        results = table.search(query).limit(num_results).to_pandas()
+        contexts = []
 
-    for _, row in results.iterrows():
-        # Extract metadata
-        filename = row["metadata"]["filename"]
-        page_numbers = row["metadata"]["page_numbers"]
-        title = row["metadata"]["title"]
+        for _, row in results.iterrows():
+            # Extract metadata
+            metadata = row["metadata"]
+            filename = metadata.get("filename", "Unknown")
+            page_numbers = metadata.get("page_numbers", [])
+            title = metadata.get("title", "")
 
-        # Build source citation
-        source_parts = []
-        if filename:
-            source_parts.append(filename)
-        if isinstance(page_numbers, (list, np.ndarray)) and len(page_numbers) > 0:
-            source_parts.append(f"p. {', '.join(str(p) for p in page_numbers)}")
+            # Build source citation
+            source_parts = []
+            if filename:
+                source_parts.append(filename)
+            if isinstance(page_numbers, (list, np.ndarray)) and len(page_numbers) > 0:
+                source_parts.append(f"p. {', '.join(str(p) for p in page_numbers)}")
 
-        source = f"\nSource: {' - '.join(source_parts)}"
-        if title:
-            source += f"\nTitle: {title}"
+            source = f"\nSource: {' - '.join(source_parts)}"
+            if title:
+                source += f"\nTitle: {title}"
 
-        contexts.append(f"{row['text']}{source}")
+            contexts.append(f"{row['text']}{source}")
 
-    return "\n\n".join(contexts)
+        return "\n\n".join(contexts)
+    except Exception as e:
+        st.error(f"Error searching database: {str(e)}")
+        return ""
 
 
 def get_chat_response(messages, context: str) -> str:
@@ -140,9 +150,6 @@ st.title("📚 Document Q&A")
 # Initialize session state for chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
-
-# Initialize database connection
-table = init_db()
 
 # Display chat messages
 for message in st.session_state.messages:
