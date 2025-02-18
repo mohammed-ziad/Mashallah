@@ -19,7 +19,7 @@ def init_db():
     Returns:
         LanceDB table object
     """
-    db = lancedb.connect("BGC/lancedb")
+    db = lancedb.connect("Data/lancedb")
     return db.open_table("docling")
 
 
