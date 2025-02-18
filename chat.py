@@ -20,7 +20,7 @@ import lancedb
 # Connect to the database
 # --------------------------------------------------------------
 
-uri = "Data/lancedb"
+uri = "data/lancedb"
 db = lancedb.connect(uri)
 
 
@@ -29,16 +29,14 @@ db = lancedb.connect(uri)
 # --------------------------------------------------------------
 
 table = db.open_table("docling")
-# Initialize LanceDB connection
-@st.cache_resource
-def init_db():
-    """Initialize database connection.
 
-    Returns:
-        LanceDB table object
-    """
-    db = lancedb.connect("Data/lancedb")
-    return db.open_table("docling")
+
+# --------------------------------------------------------------
+# Search the table
+# --------------------------------------------------------------
+
+result = table.search(query="pdf").limit(5)
+result.to_pandas()
 
 # Load environment variables
 load_dotenv()
